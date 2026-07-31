@@ -1,0 +1,62 @@
+[
+  {
+    "id": "douyin-favorite",
+    "name": {
+      "zh-CN": "抖音收藏下载",
+      "zh-TW": "抖音收藏下載",
+      "en-US": "Douyin Favorites Download"
+    },
+    "description": {
+      "zh-CN": "将抖音收藏转化为下载任务流",
+      "zh-TW": "將抖音收藏轉化為下載任務流",
+      "en-US": "Convert Douyin favorites into download task flow"
+    },
+    "site": {
+      "zh-CN": "抖音",
+      "zh-TW": "抖音",
+      "en-US": "Douyin"
+    },
+    "icon": "douyin.webp",
+    "version": "https://github.com/TanMusong/vault-flow-provider-douyin-favorite/releases/latest/download/version.json"
+  },
+  {
+    "id": "x-bookmarks",
+    "name": {
+      "zh-CN": "X书签下载",
+      "zh-TW": "X書籤下載",
+      "en-US": "X Bookmarks Download"
+    },
+    "description": {
+      "zh-CN": "将 X 书签转化为下载任务流",
+      "zh-TW": "將 X 書籤轉化為下載任務流",
+      "en-US": "Convert X bookmarks into download task flow"
+    },
+    "site": {
+      "zh-CN": "X",
+      "zh-TW": "X",
+      "en-US": "X"
+    },
+    "icon": "x.webp",
+    "version": "https://github.com/TanMusong/vault-flow-provider-x-bookmarks/releases/latest/download/version.json"
+  },
+  {
+    "id": "instagram-saved",
+    "name": {
+      "zh-CN": "Instagram收藏下载",
+      "zh-TW": "Instagram收藏下載",
+      "en-US": "Instagram Saved Download"
+    },
+    "description": {
+      "zh-CN": "将 Instagram 收藏转化为下载任务流",
+      "zh-TW": "將 Instagram 收藏轉化為下載任務流",
+      "en-US": "Convert Instagram saved posts into download task flow"
+    },
+    "site": {
+      "zh-CN": "Instagram",
+      "zh-TW": "Instagram",
+      "en-US": "Instagram"
+    },
+    "icon": "instagram.webp",
+    "version": "https://github.com/TanMusong/vault-flow-provider-instagram-saved/releases/latest/download/version.json"
+  }
+]

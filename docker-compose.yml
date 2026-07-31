@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    container_name: vault-flow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./database:/app/database
+      - ./downloads:/app/downloads
+      - ./provider:/app/provider
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - WEB_PORT=5000
+      - SERVE_STATIC=true
+    restart: unless-stopped

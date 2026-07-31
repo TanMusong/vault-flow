@@ -1,0 +1,37 @@
+{
+  "name": "vault-flow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An automation pipeline that converts social media bookmarks into download tasks, automatically fetches content, and organizes it into a structured local archive.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -p \"[{name}]\" -n \"SERVER,WEB\" -c \"cyan.bold,magenta.bold\" \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build --workspaces",
+    "build:server": "npm run build -w server",
+    "build:web": "npm run build -w web",
+    "start": "concurrently -k -p \"[{name}]\" -n \"SERVER,WEB\" -c \"cyan.bold,magenta.bold\" \"npm run start -w server\" \"npm run start -w web\"",
+    "start:server": "npm run start -w server",
+    "start:web": "npm run start -w web",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+[https://github.com/TanMusong/vault-flow.git](https://github.com/TanMusong/vault-flow.git)"
+  },
+  "author": "TanMusong",
+  "license": "MIT",
+  "bugs": {
+    "url": "[https://github.com/TanMusong/vault-flow/issues](https://github.com/TanMusong/vault-flow/issues)"
+  },
+  "homepage": "[https://github.com/TanMusong/vault-flow#readme](https://github.com/TanMusong/vault-flow#readme)",
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

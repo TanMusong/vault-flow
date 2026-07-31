@@ -1,0 +1,82 @@
+/* Shared task-row styles (used by HomeView + TaskListView) */
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #2a2d31; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #3a3d41; }
+* { scrollbar-width: thin; scrollbar-color: #2a2d31 transparent; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+.task-list { display: flex; flex-direction: column; }
+.empty-state { padding: 32px; text-align: center; color: #95989e; font-size: 14px; }
+
+.task-row { display: flex; align-items: center; gap: 24px; padding: 12px 16px; border-radius: 8px; border-bottom: 1px solid #1e2226; cursor: pointer; transition: background 0.15s; }
+.task-row:hover { background: rgba(149,152,158,0.06); }
+.task-row:last-child { border-bottom: none; }
+.task-row-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.task-row-icon-img { width: 32px; height: 32px; object-fit: contain; border-radius: 8px; }
+.task-row-info { width: 200px; flex-shrink: 0; min-width: 0; }
+.task-row-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-row-meta { font-size: 12px; color: #95989e; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-row-interval { background: #1a1d21; padding: 2px 8px; border-radius: 4px; font-size: 11px; color: #95989e; flex-shrink: 0; }
+.task-row-progress { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.task-row-status { font-size: 12px; font-weight: 500; }
+.task-row-countdown { color: #95989e; font-size: 11px; margin-left: 6px; }
+.task-row-progress-count { color: #4caf50; font-size: 11px; margin-left: 6px; }
+.task-row-bar { height: 6px; border-radius: 3px; width: 100%; }
+.task-row-bar.idle { background: rgba(149,152,158,0.3); }
+.task-row-bar.active { background: #1a1d21; position: relative; overflow: hidden; }
+.task-row-bar-fill { height: 100%; background: #0f2f74; border-radius: 3px; transition: width 0.3s; }
+.task-row-buttons { display: flex; gap: 8px; flex-shrink: 0; margin-left: 16px; align-items: center; }
+.task-row-last-result { font-size: 12px; padding: 4px 10px; border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
+.task-row-last-result.success { background: rgba(76,175,80,0.15); color: #4caf50; }
+.task-row-last-result.error { background: rgba(244,67,54,0.15); color: #f44336; }
+.task-row-last-result.pending { background: rgba(149,152,158,0.15); color: #95989e; }
+
+@media (max-width: 768px) {
+  .task-row { flex-wrap: wrap; gap: 8px 16px; }
+  .task-row-info { width: auto; flex: 1; min-width: 0; }
+  .task-row-progress { order: 3; flex-basis: 100%; margin-top: 4px; padding-top: 8px; border-top: 1px solid #1e2226; }
+  .task-row-buttons { order: 2; margin-left: auto; }
+}
+
+.card { background: #14171a; border: 1px solid #16181b; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-size: 16px; font-weight: 600; color: #fff; }
+.card-link { font-size: 13px; color: #95989e; text-decoration: none; }
+.card-link:hover { color: #fff; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: all 0.3s ease; backdrop-filter: blur(0px); }
+.modal-overlay.active { opacity: 1; pointer-events: auto; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+.modal { background: #14171a; border: 1px solid #16181b; border-radius: 12px; width: 480px; max-width: 90vw; max-height: 85vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s ease; }
+.modal-overlay.active .modal { transform: scale(1); }
+.modal-header { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 4px; }
+.modal-close:hover { color: #fff; }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #1e2226; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 500; }
+.field input, .field select, .field textarea { width: 100%; padding: 8px 2px; background: transparent; border: none; border-bottom: 1px solid #282828; border-radius: 0; color: #fff; font-size: 13px; outline: none; transition: border-color 0.15s; }
+.field input:focus, .field select:focus, .field textarea:focus { border-bottom-color: #3b82f6; }
+.field-hint { font-size: 11px; color: #ff9800; margin-top: 4px; display: none; }
+.field-hint.show { display: block; }
+.site-select { display: flex; gap: 8px; }
+.site-option { flex: 1; padding: 12px; border: 2px solid #333; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.15s; }
+.site-option:hover { border-color: #555; }
+.site-option.selected { border-color: #0f2f74; background: rgba(15,47,116,0.15); }
+.site-option-icon { font-size: 24px; margin-bottom: 4px; }
+.site-option-icon-img { width: 28px; height: 28px; object-fit: contain; margin-bottom: 4px; }
+.site-option-label { font-size: 12px; color: #fff; }
+.advanced-toggle { display: flex; align-items: center; gap: 8px; padding: 10px 0; cursor: pointer; color: #888; font-size: 13px; border-top: 1px solid #282828; margin-top: 8px; }
+.advanced-toggle:hover { color: #ccc; }
+.advanced-arrow { font-size: 10px; transition: transform 0.2s; margin-left: auto; }
+.advanced-arrow.open { transform: rotate(180deg); }
+.switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background: #333; border-radius: 20px; transition: 0.2s; }
+.slider:before { content: ""; position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: #888; border-radius: 50%; transition: 0.2s; }
+.switch input:checked + .slider { background: #1d9bf044; }
+.switch input:checked + .slider:before { transform: translateX(16px); background: #1d9bf0; }
