@@ -20,8 +20,8 @@ interface Config {
 const config: Config = {
 	get port(): number { return parseInt(process.env.SERVER_PORT || '', 10) || 3000; },
 	get downloadDir(): string { return process.env.DOWNLOAD_DIR || path.join(HOME, 'vault-flow', 'downloads'); },
-	get databaseDir(): string { return process.env.DATA_DIR || path.join(HOME, 'vault-flow', 'database'); },
-	get providerDir(): string { return process.env.PROVIDER_DIR || path.join(HOME, 'vault-flow', 'provider'); },
+	get databaseDir(): string { return process.env.DATA_DIR || path.join(HOME, 'vault-flow', 'data'); },
+	get providerDir(): string { return process.env.PROVIDER_DIR || path.join(HOME, 'vault-flow', 'providers'); },
 	get maxRunningTasks(): number { return parseInt(process.env.MAX_RUNNING_TASKS || '', 10) || 2; },
 	get chromePath(): string { return process.env.CHROME_PATH || ''; }
 };
