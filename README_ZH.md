@@ -52,25 +52,24 @@ npm run dev        # 同时启动 server (:3000) 和 web UI (:5000)
 
 打开 `http://localhost:5000`。
 
-### Docker 部署
+### 本地编译运行
 
 ```bash
-docker run -d \
-  -p 5000:5000 \
-  -v ~/vault-flow/downloads:/app/downloads \
-  -v ~/vault-flow/database:/app/database \
-  -v ~/vault-flow/provider:/app/provider \
-  --name vault-flow \
-  ghcr.io/tanmusong/vault-flow:latest
+npm install
+npm run build
+npm run start:server
 ```
 
 打开 `http://localhost:5000`。
 
-### 自定义 Chrome 路径
+### Docker 部署
 
 ```bash
-CHROME_PATH=/path/to/chrome npm run server
+docker compose build
+docker compose up -d
 ```
+
+打开 `http://localhost:5000`。
 
 ---
 

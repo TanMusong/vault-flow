@@ -52,25 +52,24 @@ npm run dev        # starts both server (:3000) and web UI (:5000)
 
 Open `http://localhost:5000`.
 
-### Docker
+### Build & Run Locally
 
 ```bash
-docker run -d \
-  -p 5000:5000 \
-  -v ~/vault-flow/downloads:/app/downloads \
-  -v ~/vault-flow/database:/app/database \
-  -v ~/vault-flow/provider:/app/provider \
-  --name vault-flow \
-  ghcr.io/tanmusong/vault-flow:latest
+npm install
+npm run build
+npm run start:server
 ```
 
 Open `http://localhost:5000`.
 
-### Custom Chrome path
+### Docker
 
 ```bash
-CHROME_PATH=/path/to/chrome npm run server
+docker compose build
+docker compose up -d
 ```
+
+Open `http://localhost:5000`.
 
 ---
 
