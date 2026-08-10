@@ -25,3 +25,14 @@ docker-compose*
 screenshot
 LICENSE
 *.md
+
+coverage
+.nyc_output
+.cache
+.vite
+.DS_Store
+Thumbs.db
+
+downloads
+data
+providers

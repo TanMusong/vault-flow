@@ -149,4 +149,6 @@ vite.config.ts.timestamp-*
 # js
 dst/
 
-plugins/
+downloads/
+data/
+providers/
