@@ -130,7 +130,7 @@
         <div v-if="errorMsg" class="modal-error">{{ errorMsg }}</div>
         <button class="btn btn-ghost" @click="$emit('close')">{{ t('btn.cancel') }}</button>
         <button class="btn btn-primary" :disabled="!selectedSite || submitting" @click="submit">
-          {{ submitting ? 'Creating...' : t('modal.create') }}
+          {{ submitting ? t('modal.creating') : t('modal.create') }}
         </button>
       </div>
     </div>
