@@ -44,6 +44,7 @@ export interface Task {
   site: string;
   paused: boolean;
   interval: number;
+  config: Record<string, unknown>;
   next_run: string | null;
   last_state: TaskState;
   run_state: RunState;

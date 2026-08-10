@@ -64,20 +64,20 @@ export class TasksController {
   }
 
   @Post('tasks')
-  async createTask(@Body() body: { site?: string; params?: Record<string, unknown> }) {
+  async createTask(@Body() body: { site?: string; config?: Record<string, unknown> }) {
     if (!body.site) throw new BadRequestException('site required');
+    const configData = body.config || {};
 
     try {
-      // Generate task ID first so provider stores under real ID
       const taskId = this.store.generateTaskId();
-
-      const { name, interval } = await this.runner.addTask(body.site, body.params || {}, taskId);
+      const { name } = await this.runner.addTask(body.site, configData, taskId);
 
       this.store.addTask({
         id: taskId,
         name,
         site: body.site,
-        interval,
+        interval: Number(configData.interval) || 1800,
+        config: configData,
       });
 
       this.scheduler.scheduleTask(this.store.getTask(taskId)!);
@@ -89,7 +89,10 @@ export class TasksController {
   }
 
   @Put('tasks/:id')
-  updateTask(@Param('id') id: string, @Body() body: { name?: string; interval?: number; paused?: boolean }) {
+  async updateTask(@Param('id') id: string, @Body() body: { name?: string; interval?: number; paused?: boolean; config?: Record<string, unknown> }) {
+    const task = this.store.getTask(id);
+    if (!task) throw new NotFoundException('Task not found');
+
     if (body.interval !== undefined) {
       const interval = parseTaskInterval(body.interval, 1800);
       if (interval === null) throw new BadRequestException('interval must be at least 600 seconds');
@@ -98,6 +101,11 @@ export class TasksController {
 
     const updated = this.store.updateTask(id, body);
     if (!updated) throw new NotFoundException('Task not found');
+
+    if (body.config !== undefined) {
+      await this.runner.updateTaskConfig(id);
+    }
+
     this.store.addLog(id, 'info', 'Task config updated');
     this.scheduler.rescheduleTask(updated.id);
     return updated;
@@ -162,27 +170,5 @@ export class TasksController {
     const l = parseInt(limit || '50', 10) || 50;
     const o = parseInt(offset || '0', 10) || 0;
     return this.store.getLogs(id, l, o);
-  }
-
-  @Get('tasks/:id/storage')
-  getTaskStorage(@Param('id') id: string) {
-    const task = this.store.getTask(id);
-    if (!task) throw new NotFoundException('Task not found');
-    const keys = this.providerStorage.keys(id);
-    const data: Record<string, unknown> = {};
-    for (const key of keys) {
-      data[key] = this.providerStorage.get(id, key);
-    }
-    return data;
-  }
-
-  @Put('tasks/:id/storage')
-  updateTaskStorage(@Param('id') id: string, @Body() body: Record<string, unknown>) {
-    const task = this.store.getTask(id);
-    if (!task) throw new NotFoundException('Task not found');
-    for (const [key, value] of Object.entries(body)) {
-      this.providerStorage.set(id, key, value);
-    }
-    return { ok: true };
   }
 }

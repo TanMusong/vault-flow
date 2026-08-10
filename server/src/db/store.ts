@@ -17,6 +17,7 @@ interface DbRow {
 	site: string;
 	paused: number;
 	interval: number;
+	config: string;
 	next_run: string | null;
 	last_state: number;
 	run_state: number;
@@ -46,6 +47,7 @@ function init(): void {
 				site TEXT NOT NULL,
 				paused INTEGER DEFAULT 0,
 				interval INTEGER DEFAULT 1800,
+				config TEXT DEFAULT '{}',
 				next_run TEXT,
 				last_state INTEGER DEFAULT 0,
 				run_state INTEGER DEFAULT 0,
@@ -113,6 +115,10 @@ function init(): void {
 	if (!taskCols.some(c => c.name === 'run_state')) {
 		rootDb.exec('ALTER TABLE tasks ADD COLUMN run_state INTEGER DEFAULT 0');
 	}
+	// Ensure config column exists
+	if (!taskCols.some(c => c.name === 'config')) {
+		rootDb.exec("ALTER TABLE tasks ADD COLUMN config TEXT DEFAULT '{}'");
+	}
 
 	rootDb.exec(`
 		CREATE TABLE IF NOT EXISTS logs (
@@ -144,6 +150,7 @@ function mapRowToTask(row: DbRow, downloadCount?: number): Task {
 		site: row.site,
 		paused: !!row.paused,
 		interval: row.interval,
+		config: safeJsonParse(row.config, {}),
 		next_run: row.next_run,
 		last_state: row.last_state,
 		run_state: row.run_state || 0,
@@ -171,20 +178,22 @@ function generateTaskId(): string {
 	return crypto.randomUUID();
 }
 
-function addTask(data: { id?: string; name: string; site: string; interval?: number }): Task {
+function addTask(data: { id?: string; name: string; site: string; interval?: number; config?: Record<string, unknown> }): Task {
 	const id = data.id || crypto.randomUUID();
-	rootDb.prepare('INSERT INTO tasks (id, name, site, interval) VALUES (?, ?, ?, ?)').run(
-		id, data.name || 'Unnamed', data.site, data.interval || 1800
+	const configJson = JSON.stringify(data.config || {});
+	rootDb.prepare('INSERT INTO tasks (id, name, site, interval, config) VALUES (?, ?, ?, ?, ?)').run(
+		id, data.name || 'Unnamed', data.site, data.interval || 1800, configJson
 	);
 	return getTask(id)!;
 }
 
-function updateTask(id: string, data: Partial<{ name: string; interval: number; paused: boolean }>): Task | null {
+function updateTask(id: string, data: Partial<{ name: string; interval: number; paused: boolean; config: Record<string, unknown> }>): Task | null {
 	const fields: string[] = [];
 	const values: unknown[] = [];
 	if (data.name !== undefined) { fields.push('name = ?'); values.push(data.name); }
 	if (data.interval !== undefined) { fields.push('interval = ?'); values.push(data.interval); }
 	if (data.paused !== undefined) { fields.push('paused = ?'); values.push(data.paused ? 1 : 0); }
+	if (data.config !== undefined) { fields.push('config = ?'); values.push(JSON.stringify(data.config)); }
 	if (fields.length === 0) return getTask(id);
 	values.push(id);
 	rootDb.prepare(`UPDATE tasks SET ${fields.join(', ')} WHERE id = ?`).run(...values);

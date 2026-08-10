@@ -214,7 +214,7 @@ async function submit() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         site: selectedSite.value.id,
-        params: {
+        config: {
           interval: interval.value,
           ...providerConfig,
         },

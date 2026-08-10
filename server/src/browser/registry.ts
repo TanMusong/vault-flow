@@ -1,7 +1,17 @@
 import fs from 'fs';
 import path from 'path';
-import type { VaultProvider, ProviderManifest } from '@vault-flow/provider-api';
+import type { VaultProvider, LocalizedString } from '@vault-flow/provider-api';
 import { config } from '../config/manager';
+
+interface ProviderManifest {
+	id: string;
+	name: LocalizedString;
+	description: LocalizedString;
+	site: LocalizedString;
+	icon: string;
+	version?: string | string[];
+	config?: unknown[];
+}
 
 interface RegisteredProvider {
 	provider: VaultProvider | null;

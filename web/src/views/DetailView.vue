@@ -390,10 +390,10 @@ function initProviderConfig(data: Record<string, any>) {
 async function saveConfig() {
   const id = route.params.id as string;
   try {
-    const res = await fetch(`/api/tasks/${id}/storage`, {
+    const res = await fetch(`/api/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...providerConfig }),
+      body: JSON.stringify({ config: { ...providerConfig } }),
     });
     if (res.ok) {
       providerConfigSnapshot.value = { ...providerConfig };
@@ -510,18 +510,18 @@ async function loadTaskLogs() {
 async function loadTask() {
   const id = route.params.id as string;
   try {
-    const [taskRes, providersRes, storageRes] = await Promise.all([
+    const [taskRes, providersRes] = await Promise.all([
       fetch(`/api/tasks/${id}`),
       fetch('/api/providers'),
-      fetch(`/api/tasks/${id}/storage`),
     ]);
     if (taskRes.ok) task.value = await taskRes.json();
     const providers = await providersRes.json();
     const map: Record<string, any> = {};
     for (const p of providers) { map[p.id] = p; }
     providerMap.value = map;
-    const storageData = await storageRes.json();
-    initProviderConfig(storageData);
+    if (task.value?.config) {
+      initProviderConfig(task.value.config);
+    }
   } catch (e) {}
   taskLoading.value = false;
 }

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { ProviderManifest } from '@vault-flow/provider-api';
+import type { LocalizedString } from '@vault-flow/provider-api';
 import { config } from '../config/manager';
 import { EventHubService } from '../events/event-hub.service';
 
@@ -71,7 +71,7 @@ export class VersionCheckService {
       return null;
     }
 
-    const manifest: ProviderManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as { id: string; version?: string | string[] };
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
     const currentVersion = packageJson.version || '0.0.0';
 

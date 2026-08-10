@@ -1,7 +1,7 @@
 import { getSite } from './registry';
 import * as store from '../db/store';
 import type { TaskResult } from '../types';
-import type { ProviderContext, DownloadData, DownloadFile } from '@vault-flow/provider-api';
+import type { ProviderContext, TaskConfig, DownloadData, DownloadFile } from '@vault-flow/provider-api';
 import { config } from '../config/manager';
 import { getLocale } from '../config/manager';
 import { events } from '../events';
@@ -17,11 +17,10 @@ const runningTasks = new Set<string>();
 function isRunning(taskId: string): boolean { return runningTasks.has(taskId); }
 function getRunningCount(): number { return runningTasks.size; }
 
-function createProviderContext(taskId: string, providerDir: string): ProviderContext {
+function createProviderContext(taskId: string, cfg: TaskConfig): ProviderContext {
 	return {
 		taskId,
-		providerDir,
-		configDir: path.join(providerDir, 'config'),
+		config: cfg,
 		downloadDir: config.downloadDir,
 		locale: getLocale(),
 		version: APP_VERSION,
@@ -70,7 +69,6 @@ async function runTask(taskId: string): Promise<TaskResult> {
 	if (!registered) throw new Error(`Site "${task.site}" not registered`);
 	const site = registered.provider;
 	if (!site) throw new Error(`Site "${task.site}" not installed`);
-	const providerDir = registered.providerDir;
 
 	runningTasks.add(taskId);
 	store.setTaskRunState(taskId, { nextRun: new Date().toISOString(), run_state: 1 });
@@ -78,7 +76,7 @@ async function runTask(taskId: string): Promise<TaskResult> {
 	const startTime = Date.now();
 
 	try {
-		const ctx = createProviderContext(taskId, providerDir);
+		const ctx = createProviderContext(taskId, task.config);
 		const result = await site.executeTask(ctx);
 
 		store.setTaskRunState(taskId, { last_state: result.state, nextRun: new Date(Date.now() + (task.interval || 1800) * 1000).toISOString(), run_state: 0 });
@@ -100,21 +98,20 @@ async function runTask(taskId: string): Promise<TaskResult> {
 	}
 }
 
-async function addTask(siteId: string, params: Record<string, unknown>, taskId?: string): Promise<{ name: string; interval: number }> {
+async function addTask(siteId: string, config: TaskConfig, taskId: string): Promise<{ name: string }> {
 	const registered = getSite(siteId);
 	if (!registered) throw new Error(`Site "${siteId}" not registered`);
 	const site = registered.provider;
 	if (!site) throw new Error(`Site "${siteId}" not installed`);
-	const providerDir = registered.providerDir;
 
-	const ctx = createProviderContext(taskId || 'temp', providerDir);
-	const result = await site.addTask(ctx, params);
+	const ctx = createProviderContext(taskId, config);
+	const result = await site.addTask(ctx);
 
 	if (!result.success) {
 		throw new Error(result.message);
 	}
 
-	return { name: result.name, interval: Number(params.interval) || 1800 };
+	return { name: result.name };
 }
 
 async function deleteTask(taskId: string): Promise<void> {
@@ -124,9 +121,8 @@ async function deleteTask(taskId: string): Promise<void> {
 	if (!registered) throw new Error(`Site "${task.site}" not registered`);
 	const site = registered.provider;
 	if (!site) throw new Error(`Site "${task.site}" not installed`);
-	const providerDir = registered.providerDir;
 
-	const ctx = createProviderContext(taskId, providerDir);
+	const ctx = createProviderContext(taskId, task.config);
 	const result = await site.deleteTask(ctx, taskId);
 
 	if (!result.success) {
@@ -134,4 +130,16 @@ async function deleteTask(taskId: string): Promise<void> {
 	}
 }
 
-export { runTask, addTask, deleteTask, isRunning, getRunningCount };
+async function updateTaskConfig(taskId: string): Promise<void> {
+	const task = store.getTask(taskId);
+	if (!task) throw new Error(`Task ${taskId} not found`);
+	const registered = getSite(task.site);
+	if (!registered) throw new Error(`Site "${task.site}" not registered`);
+	const site = registered.provider;
+	if (!site) throw new Error(`Site "${task.site}" not installed`);
+
+	const ctx = createProviderContext(taskId, task.config);
+	await site.onTaskConfigUpdate(ctx, taskId);
+}
+
+export { runTask, addTask, deleteTask, updateTaskConfig, isRunning, getRunningCount };
