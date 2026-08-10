@@ -48,6 +48,7 @@ function createProviderContext(taskId: string, cfg: TaskConfig): ProviderContext
 		hasSuccessfulDownloadRecord: (postId: string) => store.hasSuccessfulDownload(taskId, postId),
 		hasPostDownloadRecord: (postId: string) => store.hasPostDownload(taskId, postId),
 		addLog: (level: string, message: string) => store.addLog(taskId, level, message),
+		saveConfig: (cfg: TaskConfig) => { store.updateTask(taskId, { config: cfg }); },
 		fs: {
 			existsSync: (p: string) => fs.existsSync(p),
 			mkdirSync: (p: string, opts?: { recursive?: boolean }) => fs.mkdirSync(p, opts),
