@@ -59,14 +59,8 @@ COPY --from=build /app/web/dist ./web/dist
 RUN mkdir -p \
     /app/downloads \
     /app/data \
-    /app/providers \
-    && chown -R 1000:1000 \
-        /app/downloads \
-        /app/data \
-        /app/providers
+    /app/providers
 
 EXPOSE 5000
-
-USER 1000
 
 CMD ["npm", "run", "start:server"]
