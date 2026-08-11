@@ -1,6 +1,6 @@
 {
   "name": "@vault-flow/server",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "ts-node --transpile-only src/main.ts",
