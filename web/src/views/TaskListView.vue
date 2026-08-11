@@ -18,7 +18,7 @@
           <div class="task-row-status" :style="{ color: isDownloading(task) ? '#4caf50' : task.run_state === 2 ? '#ff9800' : '#95989e' }">
             {{ isDownloading(task) ? t('status.downloading') : task.run_state === 2 ? t('status.waiting') : task.paused ? t('status.paused') : t('status.idle') }}
             <span v-if="!isDownloading(task) && !task.paused && task.next_run && task.run_state !== 2" class="task-row-countdown">{{ countdownText(task) }}</span>
-            <span v-if="isDownloading(task)" class="task-row-progress-count">{{ task._progress || '0/0' }}</span>
+            <span v-if="isDownloading(task)" class="task-row-progress-count">{{ task._progress && task._progress !== '0/0' ? task._progress : '' }}</span>
           </div>
           <div class="task-row-bar" :class="isDownloading(task) ? 'active' : 'idle'">
             <div v-if="isDownloading(task)" class="task-row-bar-fill" style="width:0%;"></div>
@@ -91,7 +91,10 @@ async function refresh() {
       fetch('/api/tasks/all'),
       fetch('/api/providers'),
     ]);
+    const oldProgress: Record<string, string> = {};
+    for (const t of tasks.value) { if (t._progress) oldProgress[t.id] = t._progress; }
     tasks.value = await tasksRes.json();
+    for (const t of tasks.value) { if (oldProgress[t.id]) t._progress = oldProgress[t.id]; }
     const providers = await providersRes.json();
     const map: Record<string, string | Record<string, string>> = {};
     for (const p of providers) { map[p.id] = p.site; }

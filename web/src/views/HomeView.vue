@@ -54,16 +54,15 @@
             <div class="task-row-status" :style="{ color: isDownloading(task) ? '#4caf50' : task.run_state === 2 ? '#ff9800' : '#95989e' }">
               {{ isDownloading(task) ? t('status.downloading') : task.run_state === 2 ? t('status.waiting') : task.paused ? t('status.paused') : t('status.idle') }}
               <span v-if="!isDownloading(task) && !task.paused && task.next_run && task.run_state !== 2" class="task-row-countdown">{{ countdownText(task) }}</span>
-              <span v-if="isDownloading(task)" class="task-row-progress-count">{{ task._progress || '0/0' }}</span>
+              <span v-if="isDownloading(task)" class="task-row-progress-count">{{ task._progress && task._progress !== '0/0' ? task._progress : '' }}</span>
             </div>
             <div class="task-row-bar" :class="isDownloading(task) ? 'active' : 'idle'">
               <div v-if="isDownloading(task)" class="task-row-bar-fill" :style="{ width: progressPercent(task) }"></div>
             </div>
           </div>
           <div class="task-row-buttons">
-            <span v-if="task.last_state === 1" class="task-row-last-result success"><i class="fa-solid fa-check"></i> <span v-t="'status.normal'"></span></span>
-            <span v-else-if="task.last_state === 2" class="task-row-last-result error"><i class="fa-solid fa-xmark"></i> <span v-t="'status.error'"></span></span>
-            <span v-else class="task-row-last-result pending">--</span>
+            <span v-if="task.last_state !== 2" class="task-row-last-result success"><i class="fa-solid fa-check"></i> <span v-t="'status.normal'"></span></span>
+            <span v-else class="task-row-last-result error"><i class="fa-solid fa-xmark"></i> <span v-t="'status.error'"></span></span>
           </div>
         </div>
       </div>

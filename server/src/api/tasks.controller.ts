@@ -4,6 +4,7 @@ import { RunnerService } from '../browser/runner.service';
 import { SchedulerService } from '../scheduler/scheduler.service';
 import { EventHubService } from '../events/event-hub.service';
 import { ProviderStorageService } from '../provider/provider-storage.service';
+import { RegistryService } from '../browser/registry.service';
 
 function parseTaskInterval(value: unknown, fallback: number): number | null {
   if (value === undefined) return fallback;
@@ -20,6 +21,7 @@ export class TasksController {
     private readonly scheduler: SchedulerService,
     private readonly events: EventHubService,
     private readonly providerStorage: ProviderStorageService,
+    private readonly registry: RegistryService,
   ) {}
 
   @Get('tasks')
@@ -60,6 +62,24 @@ export class TasksController {
   getTask(@Param('id') id: string) {
     const task = this.store.getTask(id);
     if (!task) throw new NotFoundException('Task not found');
+    // Mask password fields in config before sending to frontend
+    const registered = this.registry.getSite(task.site);
+    if (registered?.manifest?.config && task.config) {
+      const masked = { ...task.config };
+      const findPasswordFields = (items: unknown[]) => {
+        for (const item of items) {
+          if (item && typeof item === 'object') {
+            if ((item as any).password && masked[(item as any).key] !== undefined) {
+              masked[(item as any).key] = '';
+            }
+            if ((item as any).on) findPasswordFields((item as any).on);
+            if ((item as any).off) findPasswordFields((item as any).off);
+          }
+        }
+      };
+      findPasswordFields(registered.manifest.config);
+      return { ...task, config: masked };
+    }
     return task;
   }
 
@@ -97,6 +117,25 @@ export class TasksController {
       const interval = parseTaskInterval(body.interval, 1800);
       if (interval === null) throw new BadRequestException('interval must be at least 600 seconds');
       body.interval = interval;
+    }
+
+    // Restore password fields that frontend sent as empty (masked) values
+    if (body.config) {
+      const registered = this.registry.getSite(task.site);
+      if (registered?.manifest?.config) {
+        const findPasswordFields = (items: unknown[]) => {
+          for (const item of items) {
+            if (item && typeof item === 'object') {
+              if ((item as any).password && body.config![(item as any).key] === '') {
+                body.config![(item as any).key] = task.config[(item as any).key];
+              }
+              if ((item as any).on) findPasswordFields((item as any).on);
+              if ((item as any).off) findPasswordFields((item as any).off);
+            }
+          }
+        };
+        findPasswordFields(registered.manifest.config);
+      }
     }
 
     const updated = this.store.updateTask(id, body);

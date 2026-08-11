@@ -79,8 +79,8 @@
 
     <div v-if="activeTab === 'downloads'" class="card">
       <div class="downloads-header">
-        <h3>Downloads</h3>
-        <button v-if="downloads.length > 0" class="btn btn-danger btn-sm" @click="clearDownloads"><i class="fa-solid fa-trash"></i> Clear</button>
+        <h3 v-t="'nav.downloads'"></h3>
+        <button v-if="downloads.length > 0" class="btn btn-danger btn-sm" @click="clearDownloads"><i class="fa-solid fa-trash"></i> {{ t('btn.clear') }}</button>
       </div>
       <div class="download-list">
         <div v-if="downloads.length === 0" class="empty-downloads" v-t="'empty.no_downloads'"></div>
@@ -354,7 +354,9 @@ function getLocalizedName(name: string | Record<string, string>): string {
 function initProviderConfig(data: Record<string, any>) {
   Object.keys(providerConfig).forEach(key => delete providerConfig[key]);
   for (const item of providerConfigItems.value) {
-    if (data[item.key] !== undefined) {
+    if ((item as any).password) {
+      providerConfig[item.key] = '';
+    } else if (data[item.key] !== undefined) {
       providerConfig[item.key] = data[item.key];
     } else if (item.default !== undefined) {
       providerConfig[item.key] = item.default;
