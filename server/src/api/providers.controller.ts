@@ -283,9 +283,11 @@ export class ProvidersController {
 
     const { execSync } = require('child_process');
     try {
-      execSync('npm install --production', { cwd: providerDir, stdio: 'pipe' });
-    } catch (_e) {
-      this.logger.warn(`Failed to install dependencies for provider`);
+      execSync('npm install --production --no-bin-links', { cwd: providerDir, stdio: 'pipe' });
+    } catch (e: any) {
+      const stderr = e.stderr?.toString() || '';
+      const stdout = e.stdout?.toString() || '';
+      this.logger.error(`Failed to install dependencies for provider:\n${stderr || stdout || e.message}`);
     }
   }
 
