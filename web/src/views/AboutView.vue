@@ -3,7 +3,10 @@
     <img src="/icon.png" style="width:64px;" alt="Vault Flow">
     <h1>Vault Flow</h1>
     <p class="about-p" v-t="'about.tagline'"></p>
-    <p class="about-meta">v{{ version }}</p>
+    <p class="about-meta">
+      v{{ version }}
+      <span v-if="hasUpdate" class="about-new-version">({{ t('about.new_version', { version: latestVersion }) }})</span>
+    </p>
     <hr class="about-divider">
     <div style="max-width:600px;width:100%;text-align:left;">
       <h2 v-t="'about.tutorial'"></h2>
@@ -25,16 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { t } from '../locales/index';
 
-const version = ref('2.0.10');
+const version = ref('0.0.0');
+const latestVersion = ref('');
+const hasUpdate = computed(() => !!latestVersion.value);
 
 onMounted(async () => {
   try {
     const res = await fetch('/api/version');
     const data = await res.json();
     if (data.local) version.value = data.local;
+    if (data.hasUpdate && data.latest) latestVersion.value = data.latest;
   } catch (e) {}
 });
 </script>
@@ -44,6 +50,7 @@ onMounted(async () => {
 .about-wrap h1 { font-size:20px; font-weight:600; margin:0; }
 .about-wrap h2 { font-size:15px; font-weight:600; margin:8px 0 4px; text-align:left; width:100%; }
 .about-meta { font-size:12px; color:#666; }
+.about-new-version { color:#f44336; font-weight:500; }
 .about-p { font-size:13px; color:#999; line-height:1.6; margin:0; }
 .about-link { font-size:13px; color:#1d9bf0; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:color 0.15s; }
 .about-link:hover { color:#4db8ff; }

@@ -22,9 +22,9 @@
           <i class="fa-solid fa-database"></i>
           <span v-show="sidebarExpanded" v-t="'nav.providers'"></span>
         </router-link>
-        <router-link to="/about" class="sidebar-nav-item" :class="{ active: route.path === '/about' }">
+        <router-link to="/about" class="sidebar-nav-item" :class="{ active: route.path === '/about', 'has-update': coreHasUpdate }">
           <i class="fa-solid fa-circle-info"></i>
-          <span v-show="sidebarExpanded" v-t="'nav.about'"></span>
+          <span v-show="sidebarExpanded" class="sidebar-nav-text" v-t="'nav.about'"></span>
         </router-link>
       </nav>
       <div class="sidebar-spacer"></div>
@@ -223,6 +223,7 @@ async function installProvider(file: File) {
 interface SidebarStats { serverStartTime: number; taskRunsSuccess: number; taskRunsFailed: number; totalDownloadsSuccess: number }
 const sidebarStats = ref<SidebarStats | null>(null);
 const serverStartTime = ref(Date.now());
+const coreHasUpdate = ref(false);
 
 watch(() => route.fullPath, () => {
   const el = document.querySelector('.page-container');
@@ -266,6 +267,10 @@ onMounted(async () => {
   fetch('/api/locale', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locale: currentLocale.value }) });
   fetchSidebarStats();
   loadIcons();
+  // Check core version
+  fetch('/api/version').then(r => r.json()).then(data => {
+    if (data.hasUpdate) coreHasUpdate.value = true;
+  }).catch(() => {});
   // Local countdown timer (1s)
   nowTimer = setInterval(() => { now.value = Date.now(); }, 1000);
   // SSE connection
@@ -444,6 +449,17 @@ body {
 .sidebar-nav-item span { transition: opacity 0.2s; }
 .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); }
 .sidebar-nav-item.active { background: #0f2f74; color: #fff; }
+.sidebar-nav-text { position: relative; }
+.sidebar-nav-item.has-update .sidebar-nav-text::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -8px;
+  width: 8px;
+  height: 8px;
+  background: #f44336;
+  border-radius: 50%;
+}
 
 .sidebar-spacer { flex: 1; }
 
