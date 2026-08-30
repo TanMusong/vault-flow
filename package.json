@@ -1,6 +1,6 @@
 {
   "name": "vault-flow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "An automation pipeline that converts social media bookmarks into download tasks, automatically fetches content, and organizes it into a structured local archive.",
   "workspaces": [
