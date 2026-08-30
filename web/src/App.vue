@@ -18,9 +18,9 @@
           <i class="fa-solid fa-scroll"></i>
           <span v-show="sidebarExpanded" v-t="'nav.logs'"></span>
         </router-link>
-        <router-link to="/providers" class="sidebar-nav-item" :class="{ active: route.path === '/providers' }">
+        <router-link to="/providers" class="sidebar-nav-item" :class="{ active: route.path === '/providers', 'has-update': providerHasUpdate }">
           <i class="fa-solid fa-database"></i>
-          <span v-show="sidebarExpanded" v-t="'nav.providers'"></span>
+          <span v-show="sidebarExpanded" class="sidebar-nav-text" v-t="'nav.providers'"></span>
         </router-link>
         <router-link to="/about" class="sidebar-nav-item" :class="{ active: route.path === '/about', 'has-update': coreHasUpdate }">
           <i class="fa-solid fa-circle-info"></i>
@@ -224,6 +224,7 @@ interface SidebarStats { serverStartTime: number; taskRunsSuccess: number; taskR
 const sidebarStats = ref<SidebarStats | null>(null);
 const serverStartTime = ref(Date.now());
 const coreHasUpdate = ref(false);
+const providerHasUpdate = ref(false);
 
 watch(() => route.fullPath, () => {
   const el = document.querySelector('.page-container');
@@ -271,6 +272,16 @@ onMounted(async () => {
   fetch('/api/version').then(r => r.json()).then(data => {
     if (data.hasUpdate) coreHasUpdate.value = true;
   }).catch(() => {});
+  // Check provider updates
+  fetch('/api/providers').then(r => r.json()).then(data => {
+    providerHasUpdate.value = data.some((p: any) => p.update);
+  }).catch(() => {});
+  // Re-check provider updates when providers page completes an update
+  window.addEventListener('providers-updated', () => {
+    fetch('/api/providers').then(r => r.json()).then(data => {
+      providerHasUpdate.value = data.some((p: any) => p.update);
+    }).catch(() => {});
+  });
   // Local countdown timer (1s)
   nowTimer = setInterval(() => { now.value = Date.now(); }, 1000);
   // SSE connection
@@ -315,6 +326,7 @@ function connectSSE() {
   eventSource.addEventListener('task:started', () => { if (route.name === 'detail' && detailTask.value) fetchDetailTask(detailTask.value.id); });
   eventSource.addEventListener('task:paused', () => { if (route.name === 'detail' && detailTask.value) fetchDetailTask(detailTask.value.id); });
   eventSource.addEventListener('scheduler:updated', () => { if (route.name === 'detail' && detailTask.value) fetchDetailTask(detailTask.value.id); });
+  eventSource.addEventListener('provider:update-available', () => { providerHasUpdate.value = true; });
   eventSource.onerror = () => {
     eventSource?.close();
     setTimeout(connectSSE, 3000);
@@ -385,11 +397,13 @@ body {
   color: #e0e0e0;
   overflow: hidden;
   height: 100vh;
+  height: 100dvh;
 }
 
 .layout {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 

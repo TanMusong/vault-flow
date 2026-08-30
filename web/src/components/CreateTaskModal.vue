@@ -147,6 +147,7 @@ interface ConfigItem {
   type: string;
   placeholder?: string | Record<string, string>;
   default?: any;
+  immutable?: boolean;
   values?: { key: string; name: string | Record<string, string> }[];
   on?: ConfigItem[];
   off?: ConfigItem[];

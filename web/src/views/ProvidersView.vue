@@ -214,6 +214,7 @@ async function doUpdate(provider: Provider) {
       throw new Error(data.message || 'Update failed');
     }
     await fetchProviders();
+    window.dispatchEvent(new CustomEvent('providers-updated'));
   } catch (e) {
     errorMsg.value = (e as Error).message;
     setTimeout(() => { errorMsg.value = ''; }, 5000);

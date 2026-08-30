@@ -109,25 +109,25 @@
           <template v-for="item in providerConfigItems" :key="item.key">
             <div v-if="item.type === 'text'" class="config-item">
               <span class="config-label">{{ getLocalizedName(item.name) }}</span>
-              <input class="config-input" type="text" v-model="providerConfig[item.key]" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''">
+              <input class="config-input" type="text" v-model="providerConfig[item.key]" :readonly="isImmutable(item)" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''">
             </div>
             <div v-else-if="item.type === 'textarea'" class="config-item">
               <span class="config-label">{{ getLocalizedName(item.name) }}</span>
-              <textarea class="config-input" v-model="providerConfig[item.key]" rows="4" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''"></textarea>
+              <textarea class="config-input" v-model="providerConfig[item.key]" rows="4" :readonly="isImmutable(item)" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''"></textarea>
             </div>
             <div v-else-if="item.type === 'number'" class="config-item">
               <span class="config-label">{{ getLocalizedName(item.name) }}</span>
-              <input class="config-input" type="number" v-model.number="providerConfig[item.key]" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''">
+              <input class="config-input" type="number" v-model.number="providerConfig[item.key]" :readonly="isImmutable(item)" :placeholder="item.placeholder ? getLocalizedName(item.placeholder) : ''">
             </div>
             <div v-else-if="item.type === 'select'" class="config-item">
               <span class="config-label">{{ getLocalizedName(item.name) }}</span>
-              <select class="config-input" v-model="providerConfig[item.key]">
+              <select class="config-input" v-model="providerConfig[item.key]" :disabled="isImmutable(item)">
                 <option v-for="opt in item.values" :key="opt.key" :value="opt.key">{{ getLocalizedName(opt.name) }}</option>
               </select>
             </div>
             <div v-else-if="item.type === 'checkbox'" class="config-item">
               <span class="config-label">{{ getLocalizedName(item.name) }}</span>
-              <div class="toggle-row" @click="providerConfig[item.key] = !providerConfig[item.key]">
+              <div class="toggle-row" @click="!isImmutable(item) && (providerConfig[item.key] = !providerConfig[item.key])">
                 <div class="toggle-switch" :class="{ on: providerConfig[item.key] }">
                   <div class="toggle-thumb"></div>
                 </div>
@@ -136,15 +136,15 @@
             <template v-if="item.type === 'checkbox' && item.on && providerConfig[item.key]">
               <div v-for="sub in item.on" :key="sub.key" class="config-item config-sub">
                 <span class="config-label">{{ getLocalizedName(sub.name) }}</span>
-                <template v-if="sub.type === 'text'"><input class="config-input" type="text" v-model="providerConfig[sub.key]"></template>
-                <template v-else-if="sub.type === 'number'"><input class="config-input" type="number" v-model.number="providerConfig[sub.key]"></template>
+                <template v-if="sub.type === 'text'"><input class="config-input" type="text" v-model="providerConfig[sub.key]" :readonly="isImmutable(sub)"></template>
+                <template v-else-if="sub.type === 'number'"><input class="config-input" type="number" v-model.number="providerConfig[sub.key]" :readonly="isImmutable(sub)"></template>
                 <template v-else-if="sub.type === 'select'">
-                  <select class="config-input" v-model="providerConfig[sub.key]">
+                  <select class="config-input" v-model="providerConfig[sub.key]" :disabled="isImmutable(sub)">
                     <option v-for="opt in sub.values" :key="opt.key" :value="opt.key">{{ getLocalizedName(opt.name) }}</option>
                   </select>
                 </template>
                 <template v-else-if="sub.type === 'checkbox'">
-                  <div class="toggle-row" @click="providerConfig[sub.key] = !providerConfig[sub.key]">
+                  <div class="toggle-row" @click="!isImmutable(sub) && (providerConfig[sub.key] = !providerConfig[sub.key])">
                     <div class="toggle-switch" :class="{ on: providerConfig[sub.key] }"><div class="toggle-thumb"></div></div>
                   </div>
                 </template>
@@ -153,15 +153,15 @@
             <template v-if="item.type === 'checkbox' && item.off && !providerConfig[item.key]">
               <div v-for="sub in item.off" :key="sub.key" class="config-item config-sub">
                 <span class="config-label">{{ getLocalizedName(sub.name) }}</span>
-                <template v-if="sub.type === 'text'"><input class="config-input" type="text" v-model="providerConfig[sub.key]"></template>
-                <template v-else-if="sub.type === 'number'"><input class="config-input" type="number" v-model.number="providerConfig[sub.key]"></template>
+                <template v-if="sub.type === 'text'"><input class="config-input" type="text" v-model="providerConfig[sub.key]" :readonly="isImmutable(sub)"></template>
+                <template v-else-if="sub.type === 'number'"><input class="config-input" type="number" v-model.number="providerConfig[sub.key]" :readonly="isImmutable(sub)"></template>
                 <template v-else-if="sub.type === 'select'">
-                  <select class="config-input" v-model="providerConfig[sub.key]">
+                  <select class="config-input" v-model="providerConfig[sub.key]" :disabled="isImmutable(sub)">
                     <option v-for="opt in sub.values" :key="opt.key" :value="opt.key">{{ getLocalizedName(opt.name) }}</option>
                   </select>
                 </template>
                 <template v-else-if="sub.type === 'checkbox'">
-                  <div class="toggle-row" @click="providerConfig[sub.key] = !providerConfig[sub.key]">
+                  <div class="toggle-row" @click="!isImmutable(sub) && (providerConfig[sub.key] = !providerConfig[sub.key])">
                     <div class="toggle-switch" :class="{ on: providerConfig[sub.key] }"><div class="toggle-thumb"></div></div>
                   </div>
                 </template>
@@ -327,6 +327,7 @@ interface ConfigItem {
   type: string;
   placeholder?: string | Record<string, string>;
   default?: any;
+  immutable?: boolean;
   values?: { key: string; name: string | Record<string, string> }[];
   on?: ConfigItem[];
   off?: ConfigItem[];
@@ -336,9 +337,14 @@ const providerConfigItems = computed<ConfigItem[]>(() => {
   return (providerMap.value[task.value?.site]?.config as ConfigItem[]) || [];
 });
 
+function isImmutable(item: ConfigItem): boolean {
+  return item.immutable === true;
+}
+
 const configDirty = computed(() => {
-  for (const key of Object.keys(providerConfig)) {
-    if (providerConfig[key] !== providerConfigSnapshot.value[key]) return true;
+  for (const item of providerConfigItems.value) {
+    if (isImmutable(item)) continue;
+    if (providerConfig[item.key] !== providerConfigSnapshot.value[item.key]) return true;
   }
   return false;
 });
@@ -391,11 +397,16 @@ function initProviderConfig(data: Record<string, any>) {
 
 async function saveConfig() {
   const id = route.params.id as string;
+  const immutableKeys = new Set(providerConfigItems.value.filter(isImmutable).map(item => item.key));
+  const configToSave: Record<string, any> = {};
+  for (const key of Object.keys(providerConfig)) {
+    if (!immutableKeys.has(key)) configToSave[key] = providerConfig[key];
+  }
   try {
     const res = await fetch(`/api/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: { ...providerConfig } }),
+      body: JSON.stringify({ config: configToSave }),
     });
     if (res.ok) {
       providerConfigSnapshot.value = { ...providerConfig };
@@ -661,11 +672,13 @@ onUnmounted(() => {
 .config-value { font-size: 13px; color: #fff; }
 .config-input { background: transparent; border: none; border-bottom: 1px solid #282828; border-radius: 0; color: #fff; font-size: 13px; padding: 4px 2px; max-width: 200px; width: 100%; text-align: right; outline: none; }
 .config-input:focus { border-bottom-color: #3b82f6; }
+.config-input[readonly] { color: #666; cursor: default; }
 .config-input-wrap { display: inline-flex; align-items: baseline; }
 .config-input-unit { font-size: 13px; color: #95989e; margin-left: 2px; white-space: nowrap; }
 textarea.config-input { max-width: 200px; width: 100%; resize: vertical; font-family: monospace; text-align: left; }
 select.config-input { max-width: 200px; width: 100%; text-align: right; appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; padding-right: 28px; }
 select.config-input option { background: #0b0d10; color: #fff; }
+select.config-input:disabled { color: #666; cursor: default; opacity: 0.7; }
 .config-sub { padding-left: 20px; }
 .toggle-row { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 4px 0; }
 .toggle-switch { position: relative; width: 36px; height: 20px; background: #2a2d31; border-radius: 10px; transition: background 0.2s; flex-shrink: 0; }
