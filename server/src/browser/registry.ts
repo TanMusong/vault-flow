@@ -244,7 +244,11 @@ async function loadProvider(id: string): Promise<void> {
 		throw new Error(`Entry point not found: ${mainEntry}`);
 	}
 
-	delete require.cache[require.resolve(providerIndexPath)];
+	for (const key of Object.keys(require.cache)) {
+		if (key.startsWith(providerDir)) {
+			delete require.cache[key];
+		}
+	}
 
 	const providerModule = require(providerIndexPath);
 	const createProvider = providerModule.default;

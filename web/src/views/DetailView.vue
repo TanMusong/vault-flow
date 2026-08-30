@@ -105,6 +105,10 @@
 
     <div v-if="activeTab === 'config'" class="card">
       <div class="config-list">
+        <div class="config-item">
+          <span class="config-label">{{ t('task.interval') }}</span>
+          <input class="config-input" type="number" v-model.number="editInterval" min="600" step="60">
+        </div>
         <template v-if="providerConfigItems.length > 0">
           <template v-for="item in providerConfigItems" :key="item.key">
             <div v-if="item.type === 'text'" class="config-item">
@@ -320,6 +324,8 @@ const isDownloading = computed(() => {
 
 const providerConfig = reactive<Record<string, any>>({});
 const providerConfigSnapshot = ref<Record<string, any>>({});
+const editInterval = ref(1800);
+const editIntervalSnapshot = ref(1800);
 
 interface ConfigItem {
   key: string;
@@ -342,6 +348,7 @@ function isImmutable(item: ConfigItem): boolean {
 }
 
 const configDirty = computed(() => {
+  if (editInterval.value !== editIntervalSnapshot.value) return true;
   for (const item of providerConfigItems.value) {
     if (isImmutable(item)) continue;
     if (providerConfig[item.key] !== providerConfigSnapshot.value[item.key]) return true;
@@ -358,6 +365,8 @@ function getLocalizedName(name: string | Record<string, string>): string {
 }
 
 function initProviderConfig(data: Record<string, any>) {
+  editInterval.value = task.value?.interval || 1800;
+  editIntervalSnapshot.value = editInterval.value;
   Object.keys(providerConfig).forEach(key => delete providerConfig[key]);
   for (const item of providerConfigItems.value) {
     if ((item as any).password) {
@@ -402,14 +411,19 @@ async function saveConfig() {
   for (const key of Object.keys(providerConfig)) {
     if (!immutableKeys.has(key)) configToSave[key] = providerConfig[key];
   }
+  const body: Record<string, any> = { config: configToSave };
+  if (editInterval.value !== editIntervalSnapshot.value) {
+    body.interval = editInterval.value;
+  }
   try {
     const res = await fetch(`/api/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: configToSave }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
       providerConfigSnapshot.value = { ...providerConfig };
+      editIntervalSnapshot.value = editInterval.value;
     }
   } catch (e) {}
 }
